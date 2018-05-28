@@ -5,7 +5,7 @@ import chardet
 
 
 def load_data(filepath):
-    with open(filepath, 'r', encoding='UTF8') as file_handler:
+    with open(filepath, 'rb') as file_handler:
         return file_handler.read()
 
 
