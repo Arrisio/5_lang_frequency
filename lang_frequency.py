@@ -6,26 +6,19 @@ import chardet
 
 def load_data(filepath):
     with open(filepath, 'rb') as file_handler:
-        return file_handler.read()
+        text_bytes = file_handler.read()
+
+    try:
+        return text_bytes.decode('utf8')
+    except ValueError:
+        pass
+
+    return text_bytes.decode(chardet.detect(text_bytes)['encoding'])
 
 
 def get_most_frequent_words(text, number_of_words):
-    word_list = re.sub(r'([^\w\d]|_)+', ' ', text).split(' ')
-    return Counter(word_list).most_common(number_of_words)
-
-
-def decode_text(text_bytes):
-    most_common_charsets = ['utf8', 'cp1251']
-    for charset in most_common_charsets:
-        try:
-            return text_bytes.decode(charset)
-        except ValueError:
-            pass
-
-    try:
-        return text_bytes.decode(chardet.detect(text_bytes)['encoding'])
-    except ValueError:
-        raise ValueError('Не могу декодировать данные')
+    word_list = re.sub(r'([^\w]|_)+', ' ', text).split()
+    return {k: v for (k, v) in Counter(word_list).most_common(number_of_words)}
 
 
 def parse_arguments():
@@ -49,21 +42,19 @@ def parse_arguments():
     return parser.parse_args()
 
 
-def print_list_of_tuples(list_of_tuples):
-    for i_tuple in list_of_tuples:
-        print('{:>6} : {} '.format(i_tuple[0], i_tuple[1]))
+def print_words_freq(list_of_words_freq):
+    for word, freq in list_of_words_freq.items():
+        print('{:>6} : {} '.format(word, freq))
 
 
 if __name__ == '__main__':
     params = parse_arguments()
 
     try:
-        text_bytes = load_data(params.filepath)
+        text = load_data(params.filepath)
     except ValueError:
-        exit('Не могу прочитать данные из файла {}'.format(params.filepath))
+        exit('Не могу прочитать текст из файла {}'.format(params.filepath))
     except OSError:
         exit('Файл {} не существует '.format(params.filepath))
 
-    text = decode_text(text_bytes)
-
-    print_list_of_tuples(get_most_frequent_words(text, params.number_of_words))
+    print_words_freq(get_most_frequent_words(text, params.number_of_words))
