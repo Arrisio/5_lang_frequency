@@ -52,7 +52,7 @@ if __name__ == '__main__':
 
     try:
         text = load_data(params.filepath)
-    except ValueError:
+    except (ValueError, TypeError):
         exit('Не могу прочитать текст из файла {}'.format(params.filepath))
     except OSError:
         exit('Файл {} не существует '.format(params.filepath))
