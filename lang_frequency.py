@@ -5,7 +5,8 @@ import chardet
 
 
 def load_data(filepath):
-    return open(filepath, 'rb').read()
+    with open(filepath, 'r', encoding='UTF8') as file_handler:
+        return file_handler.read()
 
 
 def get_most_frequent_words(text, number_of_words):
