@@ -8,8 +8,8 @@ def load_data(filepath):
     return open(filepath, 'rb').read()
 
 
-def get_most_frequent_words(text):
-    return Counter(text.split(' ')).most_common((10))
+def get_most_frequent_words(text, n):
+    return Counter(text.split(' ')).most_common(n)
 
 
 def decode_text(text_bytes):
@@ -21,8 +21,7 @@ def decode_text(text_bytes):
             pass
 
     try:
-        result = chardet.detect(text_bytes)
-        return text_bytes.decode(result['encoding'])
+        return text_bytes.decode(chardet.detect(text_bytes)['encoding'])
     except ValueError:
         return
 
@@ -35,6 +34,14 @@ def parse_arguments():
         dest='filepath',
         help='Filepath with text, "book.txt" by default',
         default='book.txt'
+    )
+
+    parser.add_argument(
+        '-n', action='store',
+        type=int,
+        dest='number_of_words',
+        help='Number of most common words, by default',
+        default=10
     )
 
     return parser.parse_args()
@@ -51,11 +58,9 @@ if __name__ == '__main__':
     try:
         text_bytes = load_data(params.filepath)
     except ValueError as e:
-        print('Не могу прочитать данные из файла {}'.format(params.filepath))
-        exit()
+        exit('Не могу прочитать данные из файла {}'.format(params.filepath))
     except OSError as e:
-        print('Файл {} не существует '.format(params.filepath))
-        exit()
+        exit('Файл {} не существует '.format(params.filepath))
 
     text = decode_text(text_bytes)
     if text is None:
@@ -63,7 +68,8 @@ if __name__ == '__main__':
 
     text = re.sub(r'([^\w\d]|_)+', ' ', text)
     try:
-        most_common_word_list = (get_most_frequent_words(text))
+        most_common_word_list = (
+            get_most_frequent_words(text, params.number_of_words))
     except ValueError:
         print('Не могу посчитать')
 
