@@ -9,7 +9,8 @@ def load_data(filepath):
 
 
 def get_most_frequent_words(text, number_of_words):
-    return Counter(text.split(' ')).most_common(number_of_words)
+    word_list = re.sub(r'([^\w\d]|_)+', ' ', text).split(' ')
+    return Counter(word_list).most_common(number_of_words)
 
 
 def decode_text(text_bytes):
@@ -23,7 +24,7 @@ def decode_text(text_bytes):
     try:
         return text_bytes.decode(chardet.detect(text_bytes)['encoding'])
     except ValueError:
-        return
+        raise ValueError('Не могу декодировать данные')
 
 
 def parse_arguments():
@@ -63,14 +64,5 @@ if __name__ == '__main__':
         exit('Файл {} не существует '.format(params.filepath))
 
     text = decode_text(text_bytes)
-    if text is None:
-        raise ValueError('Не могу декодировать данные')
 
-    text = re.sub(r'([^\w\d]|_)+', ' ', text)
-    try:
-        most_common_word_list = (
-            get_most_frequent_words(text, params.number_of_words))
-    except ValueError:
-        print('Не могу посчитать')
-
-    print_list_of_tuples(most_common_word_list)
+    print_list_of_tuples(get_most_frequent_words(text, params.number_of_words))
