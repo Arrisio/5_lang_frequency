@@ -8,8 +8,8 @@ def load_data(filepath):
     return open(filepath, 'rb').read()
 
 
-def get_most_frequent_words(text, n):
-    return Counter(text.split(' ')).most_common(n)
+def get_most_frequent_words(text, number_of_words):
+    return Counter(text.split(' ')).most_common(number_of_words)
 
 
 def decode_text(text_bytes):
@@ -57,9 +57,9 @@ if __name__ == '__main__':
 
     try:
         text_bytes = load_data(params.filepath)
-    except ValueError as e:
+    except ValueError:
         exit('Не могу прочитать данные из файла {}'.format(params.filepath))
-    except OSError as e:
+    except OSError:
         exit('Файл {} не существует '.format(params.filepath))
 
     text = decode_text(text_bytes)
