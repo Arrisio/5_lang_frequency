@@ -9,17 +9,15 @@ def load_data(filepath):
         text_bytes = file_handler.read()
 
     try:
-        return text_bytes.decode('utf8')
+        return text_bytes.decode(chardet.detect(text_bytes)['encoding'])
     except ValueError:
-        pass
-
-    return text_bytes.decode(chardet.detect(text_bytes)['encoding'])
+        return None
 
 
 def get_most_frequent_words(text, number_of_words):
     word_list = re.sub(r'([^\w]|_)+', ' ', text).split()
-    return {k: v for (k, v) in Counter(word_list).most_common(number_of_words)}
-
+    # return {k: v for (k, v) in Counter(word_list).most_common(number_of_words)}
+    return Counter(word_list).most_common(number_of_words)
 
 def parse_arguments():
     parser = argparse.ArgumentParser()
@@ -43,7 +41,7 @@ def parse_arguments():
 
 
 def print_words_freq(list_of_words_freq):
-    for word, freq in list_of_words_freq.items():
+    for word, freq in list_of_words_freq:
         print('{:>6} : {} '.format(word, freq))
 
 
@@ -52,9 +50,11 @@ if __name__ == '__main__':
 
     try:
         text = load_data(params.filepath)
-    except (ValueError, TypeError):
-        exit('Не могу прочитать текст из файла {}'.format(params.filepath))
-    except OSError:
+    except TypeError as e:
+        exit('Не могу декодировать текст из файла {}'.format(params.filepath))
+    except FileNotFoundError:
         exit('Файл {} не существует '.format(params.filepath))
+    if not text:
+        exit('Не могу загрузить таст из файла')
 
     print_words_freq(get_most_frequent_words(text, params.number_of_words))
