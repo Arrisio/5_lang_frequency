@@ -16,7 +16,6 @@ def load_data(filepath):
 
 def get_most_frequent_words(text, number_of_words):
     word_list = re.sub(r'([^\w]|_)+', ' ', text).split()
-    # return {k: v for (k, v) in Counter(word_list).most_common(number_of_words)}
     return Counter(word_list).most_common(number_of_words)
 
 def parse_arguments():
@@ -50,7 +49,7 @@ if __name__ == '__main__':
 
     try:
         text = load_data(params.filepath)
-    except TypeError as e:
+    except TypeError:
         exit('Не могу декодировать текст из файла {}'.format(params.filepath))
     except FileNotFoundError:
         exit('Файл {} не существует '.format(params.filepath))
